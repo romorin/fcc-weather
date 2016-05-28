@@ -1,11 +1,24 @@
-var getJsonFct = getWeatherJson; // getTestNumberJson or getNumberJson
-		
+/*********************************************************
+	Api section
+*********************************************************/
+
+/*
+	Set to get from api or test
+*/
+var getJsonFct = getTestWeatherJson;
+
+/////////////////////////////////////////////////////////
+// constants
+
 var WEATHER_URL_PRE = "http://api.openweathermap.org/data/2.5/weather?appid=499279b9b6f061d2b82497bdd219688e&q=";
+var WEATHER_ICON_PRE = "http://openweathermap.org/img/w/";
+var WEATHER_ICON_EXT = ".png";
 
-var WEATHER_ICON_PRE = "http://openweathermap.org/img/w/"
-var WEATHER_ICON_EXT = ".png"
+var PRECISION = 2;
 
+/////////////////////////////////////////////////////////
 // data for testing purpose
+
 var TEST_GOOD_JSON = {
 	"coord":{"lon":-0.13,"lat":51.51},
 	"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03n"}],
@@ -20,78 +33,148 @@ var TEST_GOOD_JSON = {
 	"name":"London",
 	"cod":200
 };
-var TEST_ERROR_JSON = {
+var TEST_BAD_JSON = {
 	"cod":"404",
 	"message":"Error: Not found city"
 };
+var TEST_JSON = TEST_GOOD_JSON;
 
-var TEST_JSON = TEST_ERROR_JSON;
+/////////////////////////////////////////////////////////
+// json getters
 
 // get number data for testing without hitting the api
-function getTestWeatherJson(funct, loc) {
-   checkLoadWeather(TEST_JSON);
+function getTestWeatherJson(parser, loc) {
+   parser(TEST_JSON);
 }
 
 // get data from the api
-function getWeatherJson(loc) {
+function getWeatherJson(parser, loc) {
 	var url = [WEATHER_URL_PRE, loc].join("");
-   jQuery.getJSON(url, checkLoadWeather);
+   return jQuery.getJSON(url, parser);
 }
 
-// load data into html if ok
-function checkLoadWeather(json) {
-	if (json.cod === 200) {
-		loadWeather(json);
-	} else {
-		onErrorWeather(json);
+/*********************************************************
+	Weather dom section
+*********************************************************/
+
+/////////////////////////////////////////////////////////
+// temp conversion functions
+
+function kelvinToFahrenheit(kelvin) {
+	return kelvin * 9/5 - 459.67;
+}
+
+function kelvinToCelsius(kelvin) {
+	return kelvin - 273.15;
+}
+
+function trimPrecision(number) {
+	var exp = Math.pow(10, PRECISION);
+	jQuery('#test').html(exp);
+	return Math.round(number * exp) / exp;
+}
+
+/////////////////////////////////////////////////////////
+// html writers
+
+function getHtmlWriter(id) {
+	var id = id;
+	return function (contents) {
+		jQuery(id).html(contents);
 	}
 }
 
-// display error on weather fetch
-function onErrorWeather(json) {
-	jQuery('#temperature').html("");
-	jQuery('#humidity').html("");
-	jQuery('#minimum').html("");
-	jQuery('#maximum').html("");
-	jQuery('#wind-speed').html("");
-	jQuery('#wind-deg').html("");
-	jQuery('#coverage').html("");
-	jQuery('#city').html("");
-	jQuery('#country').html("");
-	jQuery('#sunrise').html("");
-	jQuery('#sunset').html("");
-	jQuery('#weather-name').html("");
-	jQuery('#weather-desc').html("");
-	jQuery('#weather-icon').prop("src", "#");
-	jQuery('#status').html(json.message);
+function getTempWriter(id) {
+	var id = id;
+	return function (contents) {
+		var degree = jQuery("input:radio[name=degree]:checked").val();
+		var temp = contents;
+		if (degree === 'c') {
+			temp = trimPrecision(kelvinToCelsius(contents));
+		} else if (degree === 'f') {
+			temp = trimPrecision(kelvinToFahrenheit(contents));
+		}
+		jQuery(id).html(temp);
+	}
 }
 
-// load good data into html
-function loadWeather(json) {
-	jQuery('#temperature').html(json.main.temp);
-	jQuery('#humidity').html(json.main.humidity);
-	jQuery('#minimum').html(json.main.temp_min);
-	jQuery('#maximum').html(json.main.temp_max);
-	jQuery('#wind-speed').html(json.wind.speed);
-	jQuery('#wind-deg').html(json.wind.deg);
-	jQuery('#coverage').html(json.clouds.all);
-	jQuery('#city').html(json.name);
-	jQuery('#country').html(json.sys.country);
-	jQuery('#sunrise').html(json.sys.sunrise);
-	jQuery('#sunset').html(json.sys.sunset);
-	jQuery('#weather-name').html(json.weather[0].main);
-	jQuery('#weather-desc').html(json.weather[0].description);
-	jQuery('#weather-icon').prop("src", [WEATHER_ICON_PRE, json.weather[0].icon, WEATHER_ICON_EXT].join(""));
-	jQuery('#status').html("OK");
+function getIconWriter(id, pre, ext) {
+	var id = id;
+	var pre = pre;
+	var ext = ext;
+	return function (contents) {
+		jQuery(id).prop("src", [pre, contents, ext].join(""));
+	}
+}
+
+var WEATHER_ELEMS = {
+	'temperature': { 'path' : ["main", "temp"], 					'writer' : getTempWriter('#temperature')},
+	'humidity' : 	{ 'path' : ["main", "humidity"], 			'writer' : getHtmlWriter('#humidity')},
+	'minimum' : 	{ 'path' : ["main", "temp_min"],				'writer' : getTempWriter('#minimum')},
+	'maximum' : 	{ 'path' : ["main", "temp_max"],				'writer' : getTempWriter('#maximum')},
+	'windSpeed' : 	{ 'path' : ["wind", "speed"],					'writer' : getHtmlWriter('#wind-speed')},
+	'windDeg' : 	{ 'path' : ["wind", "deg"],					'writer' : getHtmlWriter('#wind-deg')},
+	'coverage' : 	{ 'path' : ["clouds", "all"],					'writer' : getHtmlWriter('#coverage')},
+	'city' : 		{ 'path' : ["name"],								'writer' : getHtmlWriter('#city')},
+	'country' : 	{ 'path' : ["sys", "country"],				'writer' : getHtmlWriter('#country')},
+	'sunrise' : 	{ 'path' : ["sys", "sunrise"],				'writer' : getHtmlWriter('#sunrise')},
+	'sunset' : 		{ 'path' : ["sys", "sunset"],					'writer' : getHtmlWriter('#sunset')},
+	'weatherName' :{ 'path' : ["weather", 0, "main"],			'writer' : getHtmlWriter('#weather-name')},
+	'weatherDesc' :{ 'path' : ["weather", 0, "description"],	'writer' : getHtmlWriter('#weather-desc')},
+	'weatherIcon' :{ 'path' : ["weather", 0, "icon"],			'writer' : getIconWriter('#weather-icon', WEATHER_ICON_PRE, WEATHER_ICON_EXT)}
+};
+
+/*********************************************************
+	Page section
+*********************************************************/
+
+function getNestedProp(json, path, depth) {
+	// end check
+	if(depth >= path.length) {
+		return json;
+
+	// error check
+	} else if (Number.isInteger(path[depth])) {
+		if (!Array.isArray(json) || json.length <= path[depth]) {
+			return "";
+		}
+	} else {
+		if (!json.hasOwnProperty(path[depth])) {
+			return "";
+		}
+	}
+
+	// dig deeper
+	return getNestedProp(json[path[depth]], path, depth+1);
+}
+
+function writeWeather(json) {
+	for (var elem in WEATHER_ELEMS) {
+		var value = getNestedProp(json, WEATHER_ELEMS[elem].path, 0);
+		WEATHER_ELEMS[elem].writer(value);
+	}
+}
+
+function processWeatherJson(json) {
+	if (json.cod === 200) {
+		jQuery("#error-block").hide();
+		writeWeather(json);
+		jQuery("#weather-block").show();
+	} else {
+		jQuery("#weather-block").hide();
+		jQuery('#status').html(json.message);
+		jQuery("#error-block").show();
+	}
 }
 
 // main function to display the weather
-function getWeather() {
+function updateWeather() {
 	var loc = encodeURIComponent(jQuery("#input-location").val());
-	getJsonFct(loc);
+	getJsonFct(processWeatherJson, loc);
 }
 
 // to be done when the page is ready
 jQuery(document).ready(function() {
-	jQuery("#go-button").on("click", getWeather);
+	jQuery("#go-button").on("click", updateWeather);
+	jQuery("input[name=degree]:radio").change(onDegreeChange);
 });
