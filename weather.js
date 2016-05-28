@@ -84,17 +84,32 @@ function getHtmlWriter(id) {
 	}
 }
 
+var tempValues = {};
 function getTempWriter(id) {
 	var id = id;
 	return function (contents) {
+		var value = {'k':contents, 'c':trimPrecision(kelvinToCelsius(contents)), 'f':trimPrecision(kelvinToFahrenheit(contents))};
+		tempValues[id] = value;
+
 		var degree = jQuery("input:radio[name=degree]:checked").val();
-		var temp = contents;
-		if (degree === 'c') {
-			temp = trimPrecision(kelvinToCelsius(contents));
-		} else if (degree === 'f') {
-			temp = trimPrecision(kelvinToFahrenheit(contents));
-		}
-		jQuery(id).html(temp);
+		writeTemp(id, value, degree);
+	}
+}
+
+function writeTemp(id, value, degree) {
+	var temp = value.k;
+	if (degree === 'c') {
+		temp = value.c;
+	} else if (degree === 'f') {
+		temp = value.f;
+	}
+	jQuery(id).html(temp);
+}
+
+function onDegreeChange() {
+	var degree = jQuery("input:radio[name=degree]:checked").val();
+	for (var id in tempValues) {
+		writeTemp(id, tempValues[id], degree);
 	}
 }
 
