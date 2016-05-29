@@ -16,6 +16,15 @@ var WEATHER_ICON_EXT = ".png";
 
 var PRECISION = 2;
 
+var PIC_CLEAR_MOON = "clear-moon.jpg";
+var PIC_CLOUD_MOON = "cloud-moon.jpg";
+var PIC_CLEAR_SUN = "sunset.jpg";
+var PIC_CLOUD_SUN = "cloudy.jpg";
+var PIC_THUNDER = "lightning.jpg";
+var PIC_SNOW = "snowstorm.jpg";
+var PIC_MIST = "'trees in mist.jpg'";
+var PIC_RAIN = "'Gotas en una hoja 3.jpg'";
+
 /////////////////////////////////////////////////////////
 // data for testing purpose
 
@@ -58,7 +67,7 @@ function getWeatherJson(parser, loc) {
 *********************************************************/
 
 /////////////////////////////////////////////////////////
-// temp conversion functions
+// temp management
 
 function kelvinToFahrenheit(kelvin) {
 	return kelvin * 9/5 - 459.67;
@@ -70,18 +79,7 @@ function kelvinToCelsius(kelvin) {
 
 function trimPrecision(number) {
 	var exp = Math.pow(10, PRECISION);
-	jQuery('#test').html(exp);
 	return Math.round(number * exp) / exp;
-}
-
-/////////////////////////////////////////////////////////
-// html writers
-
-function getHtmlWriter(id) {
-	var id = id;
-	return function (contents) {
-		jQuery(id).html(contents);
-	}
 }
 
 var tempValues = {};
@@ -113,12 +111,73 @@ function onDegreeChange() {
 	}
 }
 
-function getIconWriter(id, pre, ext) {
-	var id = id;
-	var pre = pre;
-	var ext = ext;
+/////////////////////////////////////////////////////////
+// Background management
+
+function codeToBg(code) {
+	switch(code) {
+		case '01d':	
+		case '02d':
+			return [PIC_CLEAR_SUN, "clear day"];
+			break;
+		case '01n':
+		case '02n':
+			return [PIC_CLEAR_MOON, "clear night"];
+			break;
+		case '03d':	
+		case '04d':
+			return [PIC_CLOUD_SUN, "cloudy day"];
+			break;
+		case '03n':
+		case '04n':
+			return [PIC_CLOUD_MOON, "cloudy night"];
+			break;
+		case '09d':	
+		case '10d':
+		case '09n':
+		case '10n':
+			return [PIC_RAIN, "rain"];
+			break;
+		case '11d':
+		case '11n':
+			return [PIC_THUNDER, "thunderstorm"];
+			break;
+		case '13d':
+		case '13n':
+			return [PIC_SNOW, "snowstorm"];
+			break;
+		case '50d':
+		case '50n':
+			return [PIC_MIST, "mist"];
+			break;
+	}
+}
+
+var ID_ICON = "#weather-icon";
+var ID_BACKGROUND = "#background";
+var IMG_PRE = 'files/'
+
+function getIconWriter() {
 	return function (contents) {
-		jQuery(id).prop("src", [pre, contents, ext].join(""));
+		// update icon
+		jQuery(ID_ICON).prop("src", [WEATHER_ICON_PRE, contents, WEATHER_ICON_EXT].join(""));
+		
+		// update background
+		var bgData = codeToBg(contents);
+		var bg = jQuery(ID_BACKGROUND);
+		var img = bg.children('img');
+		img.attr('src', IMG_PRE + bgData[0]);
+		img.attr('alt', bgData[1]);
+	}
+}
+
+/////////////////////////////////////////////////////////
+// main
+
+function getHtmlWriter(id) {
+	var id = id;
+	return function (contents) {
+		jQuery(id).html(contents);
 	}
 }
 
@@ -136,7 +195,7 @@ var WEATHER_ELEMS = {
 	'sunset' : 		{ 'path' : ["sys", "sunset"],					'writer' : getHtmlWriter('#sunset')},
 	'weatherName' :{ 'path' : ["weather", 0, "main"],			'writer' : getHtmlWriter('#weather-name')},
 	'weatherDesc' :{ 'path' : ["weather", 0, "description"],	'writer' : getHtmlWriter('#weather-desc')},
-	'weatherIcon' :{ 'path' : ["weather", 0, "icon"],			'writer' : getIconWriter('#weather-icon', WEATHER_ICON_PRE, WEATHER_ICON_EXT)}
+	'weatherIcon' :{ 'path' : ["weather", 0, "icon"],			'writer' : getIconWriter()}
 };
 
 /*********************************************************
@@ -175,8 +234,10 @@ function processWeatherJson(json) {
 		jQuery("#error-block").hide();
 		writeWeather(json);
 		jQuery("#weather-block").show();
+		jQuery("#background").show();
 	} else {
 		jQuery("#weather-block").hide();
+		jQuery("#background").hide();
 		jQuery('#status').html(json.message);
 		jQuery("#error-block").show();
 	}

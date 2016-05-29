@@ -13,32 +13,34 @@
 		<script type="text/javascript" src="weather.js"></script>
 	</head>
 	<body>
-		<fieldset>
-			<legend>Please enter your location then press go.</legend>
-			<label for="input-location">Location</label> <input type="text" name="input-location" id="input-location">
-			<button id="go-button" class="btn btn-default">Go!</button>
-		</fieldset>
-
-		<div id="weather-block" style="display: none;">
-			<radiogroup>
-				<label><input type="radio" name="degree" value="c" /> Celcius</label>
-				<label><input type="radio" name="degree" value="f" /> Farhenheit</label>
-			</radiogroup>
-
-			<p>Temperature : <span id="temperature"></span></p>
-			<p>Humidity : <span id="humidity"></span></p>
-			<p>Min / Max : <span id="minimum"></span> / <span id="maximum"></span></p>
-			<p>Wind : <span id="wind-speed"></span> - <span id="wind-deg"></span></p>
-			<p>Cloud coverage : <span id="coverage"></span></p>
-			<p>City : <span id="city"></span></p>
-			<p>Country : <span id="country"></span></p>
-			<p>Sunrise / Sunset : <span id="sunrise"></span> - <span id="sunset"></span></p>
-			<p>Weather : <span id="weather-name"></span> - <span id="weather-desc"></span></p>
-			<p>Icon : <img src="#" alt="weather-icon" id="weather-icon"></p>
+		<div class="square">
+			<fieldset>
+				<legend>Please enter your location then press go.</legend>
+				<label for="input-location">Location</label> <input type="text" name="input-location" id="input-location">
+				<button id="go-button" class="btn btn-default">Go!</button>
+			</fieldset>
+	
+			<div id="weather-block" style="display: none;">
+				<radiogroup>
+					<label><input type="radio" name="degree" value="c" /> Celcius</label>
+					<label><input type="radio" name="degree" value="f" /> Farhenheit</label>
+				</radiogroup>
+	
+				<p>Temperature : <span id="temperature"></span></p>
+				<p>Humidity : <span id="humidity"></span></p>
+				<p>Min / Max : <span id="minimum"></span> / <span id="maximum"></span></p>
+				<p>Wind : <span id="wind-speed"></span> - <span id="wind-deg"></span></p>
+				<p>Cloud coverage : <span id="coverage"></span></p>
+				<p>City : <span id="city"></span></p>
+				<p>Country : <span id="country"></span></p>
+				<p>Sunrise / Sunset : <span id="sunrise"></span> - <span id="sunset"></span></p>
+				<p>Weather : <span id="weather-name"></span> - <span id="weather-desc"></span></p>
+				<p>Icon : <img src="#" alt="weather-icon" id="weather-icon"></p>
+			</div>
+			<div id="error-block" style="display: none;">
+				<p>Status : <span id="status"></span></p>
+			</div>
 		</div>
-		<div id="error-block" style="display: none;">
-			<p>Status : <span id="status"></span></p>
-		</div>
-		<p>Test : <span id="test"></span></p>
+		<div id="background" class="bg" style="display: none;"><img src="#" alt="background"></div>
 	</body>
 </html>

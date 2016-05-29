@@ -1,0 +1,15 @@
+/* src:http://stackoverflow.com/questions/16548338/full-screen-responsive-background-image */
+.bg {
+	margin: 0 auto;
+}
+
+.bg > img {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: -5000;
+
+	/* Preserve aspet ratio */
+	min-width: 100%;
+	min-height: 100%;
+}
