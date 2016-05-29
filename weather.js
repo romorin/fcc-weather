@@ -22,8 +22,8 @@ var PIC_CLEAR_SUN = "sunset.jpg";
 var PIC_CLOUD_SUN = "cloudy.jpg";
 var PIC_THUNDER = "lightning.jpg";
 var PIC_SNOW = "snowstorm.jpg";
-var PIC_MIST = "'trees in mist.jpg'";
-var PIC_RAIN = "'Gotas en una hoja 3.jpg'";
+var PIC_MIST = encodeURIComponent("trees in mist.jpg");
+var PIC_RAIN = encodeURIComponent("Gotas en una hoja 3.jpg");
 
 /////////////////////////////////////////////////////////
 // data for testing purpose
@@ -168,9 +168,7 @@ function getIconWriter() {
 function getDateWriter(id) {
 	return function (contents) {
 		var date = new Date(contents * 1000);
-
-		var formatted = [date.getHours() ,  ':', date.getMinutes()].join('');
-		jQuery(id).html(formatted);
+		jQuery(id).html(date.toTimeString().split(' ', 1));
 	};
 }
 
