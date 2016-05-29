@@ -84,22 +84,21 @@ function trimPrecision(number) {
 
 var tempValues = {};
 function getTempWriter(id) {
-	var id = id;
 	return function (contents) {
 		var value = {'k':contents, 'c':trimPrecision(kelvinToCelsius(contents)), 'f':trimPrecision(kelvinToFahrenheit(contents))};
 		tempValues[id] = value;
 
 		var degree = jQuery("input:radio[name=degree]:checked").val();
 		writeTemp(id, value, degree);
-	}
+	};
 }
 
 function writeTemp(id, value, degree) {
-	var temp = value.k;
+	var temp = [value.k, ' K'].join('');
 	if (degree === 'c') {
-		temp = value.c;
+		temp = [value.c, ' °C'].join('');
 	} else if (degree === 'f') {
-		temp = value.f;
+		temp = [value.f, ' °F'].join('');
 	}
 	jQuery(id).html(temp);
 }
@@ -116,69 +115,72 @@ function onDegreeChange() {
 
 function codeToBg(code) {
 	switch(code) {
-		case '01d':	
+		case '01d':
 		case '02d':
 			return [PIC_CLEAR_SUN, "clear day"];
-			break;
 		case '01n':
 		case '02n':
 			return [PIC_CLEAR_MOON, "clear night"];
-			break;
-		case '03d':	
+		case '03d':
 		case '04d':
 			return [PIC_CLOUD_SUN, "cloudy day"];
-			break;
 		case '03n':
 		case '04n':
 			return [PIC_CLOUD_MOON, "cloudy night"];
-			break;
-		case '09d':	
+		case '09d':
 		case '10d':
 		case '09n':
 		case '10n':
 			return [PIC_RAIN, "rain"];
-			break;
 		case '11d':
 		case '11n':
 			return [PIC_THUNDER, "thunderstorm"];
-			break;
 		case '13d':
 		case '13n':
 			return [PIC_SNOW, "snowstorm"];
-			break;
 		case '50d':
 		case '50n':
 			return [PIC_MIST, "mist"];
-			break;
 	}
 }
 
 var ID_ICON = "#weather-icon";
 var ID_BACKGROUND = "#background";
-var IMG_PRE = 'files/'
+var IMG_PRE = 'files/';
 
 function getIconWriter() {
 	return function (contents) {
 		// update icon
 		jQuery(ID_ICON).prop("src", [WEATHER_ICON_PRE, contents, WEATHER_ICON_EXT].join(""));
-		
+
 		// update background
 		var bgData = codeToBg(contents);
 		var bg = jQuery(ID_BACKGROUND);
 		var img = bg.children('img');
 		img.attr('src', IMG_PRE + bgData[0]);
 		img.attr('alt', bgData[1]);
-	}
+	};
+}
+
+/////////////////////////////////////////////////////////
+// time management
+
+function getDateWriter(id) {
+	return function (contents) {
+		var date = new Date(contents * 1000);
+
+		var formatted = [date.getHours() ,  ':', date.getMinutes()].join('');
+		jQuery(id).html(formatted);
+	};
 }
 
 /////////////////////////////////////////////////////////
 // main
 
 function getHtmlWriter(id) {
-	var id = id;
 	return function (contents) {
 		jQuery(id).html(contents);
-	}
+	};
 }
 
 var WEATHER_ELEMS = {
@@ -191,8 +193,8 @@ var WEATHER_ELEMS = {
 	'coverage' : 	{ 'path' : ["clouds", "all"],					'writer' : getHtmlWriter('#coverage')},
 	'city' : 		{ 'path' : ["name"],								'writer' : getHtmlWriter('#city')},
 	'country' : 	{ 'path' : ["sys", "country"],				'writer' : getHtmlWriter('#country')},
-	'sunrise' : 	{ 'path' : ["sys", "sunrise"],				'writer' : getHtmlWriter('#sunrise')},
-	'sunset' : 		{ 'path' : ["sys", "sunset"],					'writer' : getHtmlWriter('#sunset')},
+	'sunrise' : 	{ 'path' : ["sys", "sunrise"],				'writer' : getDateWriter('#sunrise')},
+	'sunset' : 		{ 'path' : ["sys", "sunset"],					'writer' : getDateWriter('#sunset')},
 	'weatherName' :{ 'path' : ["weather", 0, "main"],			'writer' : getHtmlWriter('#weather-name')},
 	'weatherDesc' :{ 'path' : ["weather", 0, "description"],	'writer' : getHtmlWriter('#weather-desc')},
 	'weatherIcon' :{ 'path' : ["weather", 0, "icon"],			'writer' : getIconWriter()}
