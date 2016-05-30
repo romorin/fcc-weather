@@ -126,6 +126,12 @@ body {
 		top: 50%;
 		transform: translateY(-50%);
 	}
+	.full-view {
+		display: inline;
+	}
+	.mobile-view {
+		display: none;
+	}
 }
 
 @media all and (min-width: 850px) {
@@ -167,6 +173,12 @@ body {
 	}
 	.location-block, .action-block, .degree-block {
 		transform: translateY(-25%);
+	}
+	.full-view {
+		display: none;
+	}
+	.mobile-view {
+		display: inline;
 	}
 }
 

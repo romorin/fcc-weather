@@ -5,7 +5,7 @@
 /*
 	Set to get from api or test
 */
-var getJsonFct = getWeatherJson;
+var getJsonFct = getTestWeatherJson;
 
 /////////////////////////////////////////////////////////
 // constants
@@ -16,14 +16,17 @@ var WEATHER_ICON_EXT = ".png";
 
 var PRECISION = 2;
 
-var PIC_CLEAR_MOON = "clear-moon.jpg";
-var PIC_CLOUD_MOON = "cloud-moon.jpg";
-var PIC_CLEAR_SUN = "sunset.jpg";
-var PIC_CLOUD_SUN = "cloudy.jpg";
-var PIC_THUNDER = "lightning.jpg";
-var PIC_SNOW = "snowstorm.jpg";
-var PIC_MIST = encodeURIComponent("trees in mist.jpg");
-var PIC_RAIN = encodeURIComponent("Gotas en una hoja 3.jpg");
+var PIC_URL = {
+	'CLEAR_MOON' : "https://dl.dropboxusercontent.com/s/0vf7fivvuuwrjck/clear-moon.jpg",
+	'CLOUD_MOON' : "https://dl.dropboxusercontent.com/s/e7r0gp9hx45qojh/cloud-moon.jpg",
+	'CLEAR_SUN' : "https://dl.dropboxusercontent.com/s/9wfsoa3j2qq3o70/sunset.jpg",
+	'CLOUD_SUN' : "https://dl.dropboxusercontent.com/s/d36pxotvc8ehywj/cloudy.jpg",
+	'THUNDER' : "https://dl.dropboxusercontent.com/s/zpln1kbgohnc0dk/lightning.jpg",
+	'SNOW' : "https://dl.dropboxusercontent.com/s/8knvqpic7q96aca/snowstorm.jpg",
+	'MIST' : "https://dl.dropboxusercontent.com/s/iljz3aw25vdh806/trees%20in%20mist.jpg",
+	'RAIN' : "https://dl.dropboxusercontent.com/s/klqji3ow64jlyzc/Gotas%20en%20una%20hoja%203.jpg"
+};
+var images = {};
 
 var LABEL_INPUT = "Go!";
 var LABEL_SHOW = "Change!";
@@ -33,7 +36,7 @@ var LABEL_SHOW = "Change!";
 
 var TEST_GOOD_JSON = {
 	"coord":{"lon":-0.13,"lat":51.51},
-	"weather":[{"id":802,"main":"Thunderstorm","description":"heavy shower rain and drizzle","icon":"03n"}],
+	"weather":[{"id":802,"main":"Thunderstorm","description":"heavy shower rain and drizzle","icon":"02d"}],
 	"base":"stations",
 	"main":{"temp":284.56,"pressure":1016,"humidity":82,"temp_min":282.15,"temp_max":286.95},
 	"visibility":10000,
@@ -42,7 +45,7 @@ var TEST_GOOD_JSON = {
 	"dt":1464308108,
 	"sys":{"type":1,"id":5091,"message":0.0441,"country":"GB","sunrise":1464321192,"sunset":1464379381},
 	"id":2643743,
-	"name":"LondonLondonLondon",
+	"name":"London London London",
 	"cod":200
 };
 var TEST_BAD_JSON = {
@@ -120,36 +123,35 @@ function codeToBg(code) {
 	switch(code) {
 		case '01d':
 		case '02d':
-			return [PIC_CLEAR_SUN, "clear day"];
+			return [images.CLEAR_SUN.src, "clear day"];
 		case '01n':
 		case '02n':
-			return [PIC_CLEAR_MOON, "clear night"];
+			return [images.CLEAR_MOON.src, "clear night"];
 		case '03d':
 		case '04d':
-			return [PIC_CLOUD_SUN, "cloudy day"];
+			return [images.CLOUD_SUN.src, "cloudy day"];
 		case '03n':
 		case '04n':
-			return [PIC_CLOUD_MOON, "cloudy night"];
+			return [images.CLOUD_MOON.src, "cloudy night"];
 		case '09d':
 		case '10d':
 		case '09n':
 		case '10n':
-			return [PIC_RAIN, "rain"];
+			return [images.RAIN.src, "rain"];
 		case '11d':
 		case '11n':
-			return [PIC_THUNDER, "thunderstorm"];
+			return [images.THUNDER.src, "thunderstorm"];
 		case '13d':
 		case '13n':
-			return [PIC_SNOW, "snowstorm"];
+			return [images.SNOW.src, "snowstorm"];
 		case '50d':
 		case '50n':
-			return [PIC_MIST, "mist"];
+			return [images.MIST.src, "mist"];
 	}
 }
 
 var ID_ICON = "#weather-icon";
 var ID_BACKGROUND = "#background";
-var IMG_PRE = 'files/';
 
 function getIconWriter() {
 	return function (contents) {
@@ -160,7 +162,7 @@ function getIconWriter() {
 		var bgData = codeToBg(contents);
 		var bg = jQuery(ID_BACKGROUND);
 		var img = bg.children('img');
-		img.attr('src', IMG_PRE + bgData[0]);
+		img.attr('src', bgData[0]);
 		img.attr('alt', bgData[1]);
 	};
 }
@@ -274,8 +276,20 @@ function onActionClick() {
 	}
 }
 
+function preload() {
+	for (var url in PIC_URL) {
+		images[url] = new Image();
+		images[url].src = PIC_URL[url];
+	}
+}
+
 // to be done when the page is ready
 jQuery(document).ready(function() {
 	jQuery("#go-button").on("click", onActionClick);
 	jQuery("input[name=degree]:radio").change(onDegreeChange);
+});
+
+/* Preload code */
+$(window).load( function(){
+	preload();
 });
