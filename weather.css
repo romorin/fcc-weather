@@ -115,16 +115,16 @@ body {
 	width: 100%;
 }
 
-@media all and (min-width: 600px) {
+@media all and (min-width: 850px) {
+	#weather-block {
+		width: 825px;
+	}
 	.long {
 		height: 75px;
+		width: 790px;
 	}
 	.location-block {
 		right: 18%;
-	}
-	.location-block, .action-block, .degree-block {
-		top: 50%;
-		transform: translateY(-50%);
 	}
 	.full-view {
 		display: inline;
@@ -132,14 +132,29 @@ body {
 	.mobile-view {
 		display: none;
 	}
+	.location-block, .action-block, .degree-block {
+		top: 50%;
+		transform: translateY(-50%);
+	}
 }
 
-@media all and (min-width: 850px) {
-	#weather-block {
-		width: 825px;
-	}
+@media all and (max-width: 850px) {
 	.long {
-		width: 790px;
+		height: 125px;
+	}
+	.location-block {
+		left: 5%;
+		top: 25%;
+		width: 90%;
+	}
+	.action-block {
+		top: 70%;
+	}
+	.degree-block {
+		top: 70%;
+	}
+	.location-block, .action-block, .degree-block {
+		transform: translateY(-25%);
 	}
 }
 
@@ -150,6 +165,12 @@ body {
 	.long {
 		width: 520px;
 	}
+	.full-view {
+		display: inline;
+	}
+	.mobile-view {
+		display: none;
+	}
 }
 
 @media all and (max-width: 600px) {
@@ -158,21 +179,6 @@ body {
 	}
 	.long {
 		width: 250px;
-		height: 125px;
-	}
-	.location-block {
-		left: 5%;
-		top: 25%;
-		width: 90%;
-	}
-	.action-block {
-		top: 75%;
-	}
-	.degree-block {
-		top: 75%;
-	}
-	.location-block, .action-block, .degree-block {
-		transform: translateY(-25%);
 	}
 	.full-view {
 		display: none;
