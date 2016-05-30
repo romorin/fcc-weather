@@ -88,23 +88,23 @@ function getTempWriter(id) {
 		var value = {'k':contents, 'c':trimPrecision(kelvinToCelsius(contents)), 'f':trimPrecision(kelvinToFahrenheit(contents))};
 		tempValues[id] = value;
 
-		var degree = jQuery("input:radio[name=degree]:checked").val();
+		var degree = jQuery("input:radio[name=degree]:checked").attr('id');
 		writeTemp(id, value, degree);
 	};
 }
 
 function writeTemp(id, value, degree) {
 	var temp = [value.k, ' K'].join('');
-	if (degree === 'c') {
+	if (degree === 'celcius') {
 		temp = [value.c, ' °C'].join('');
-	} else if (degree === 'f') {
+	} else if (degree === 'farhenheit') {
 		temp = [value.f, ' °F'].join('');
 	}
 	jQuery(id).html(temp);
 }
 
 function onDegreeChange() {
-	var degree = jQuery("input:radio[name=degree]:checked").val();
+	var degree = jQuery("input:radio[name=degree]:checked").attr('id');
 	for (var id in tempValues) {
 		writeTemp(id, tempValues[id], degree);
 	}

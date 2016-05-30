@@ -9,37 +9,82 @@
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
+		<link rel="stylesheet" href="fixed-rows.css">
 		<link rel="stylesheet" href="weather.css">
 		<script type="text/javascript" src="weather.js"></script>
 	</head>
 	<body>
-		<div class="square">
-			<fieldset>
-				<legend>Please enter your location then press go.</legend>
-				<label for="input-location">Location</label> <input type="text" name="input-location" id="input-location">
-				<button id="go-button" class="btn btn-default">Go!</button>
-			</fieldset>
-	
-			<div id="weather-block" style="display: none;">
-				<radiogroup>
-					<label><input type="radio" name="degree" value="c" /> Celcius</label>
-					<label><input type="radio" name="degree" value="f" /> Farhenheit</label>
-				</radiogroup>
-	
-				<p>Temperature : <span id="temperature"></span></p>
-				<p>Humidity : <span id="humidity"></span> %</p>
-				<p>Min / Max : <span id="minimum"></span> / <span id="maximum"></span></p>
-				<p>Wind : <span id="wind-speed"></span> m/s - <span id="wind-deg"></span>°</p>
-				<p>Cloud coverage : <span id="coverage"></span> %</p>
-				<p>City : <span id="city"></span></p>
-				<p>Country : <span id="country"></span></p>
-				<p>Sunrise / Sunset : <span id="sunrise"></span> / <span id="sunset"></span></p>
-				<p>Weather : <span id="weather-name"></span> - <span id="weather-desc"></span></p>
-				<p>Icon : <img src="#" alt="weather-icon" id="weather-icon"></p>
+		<div class="long square">
+			<div class="location-block">
+				<input type="text" name="input-location" id="input-location" placeholder="Location">
+				<div id="label-location" style="display: none;">
+					<span id="city"></span>, <span id="country"></span>
+				</div>
 			</div>
-			<div id="error-block" style="display: none;">
-				<p>Status : <span id="status"></span></p>
+			<button id="go-button" class="btn btn-default action-block">Go!</button>
+			<div class="btn-group degree-block" data-toggle="buttons">
+				<label class="btn btn-default active">
+					<input type="radio" name="degree" id="celcius" autocomplete="off" checked> Celcius
+				</label>
+				<label class="btn btn-default">
+					<input type="radio" name="degree" id="farhenheit" autocomplete="off"> Farhenheit
+				</label>
 			</div>
+		</div>
+		<div id="weather-block" style="display: none;">
+			<div class="squary square flex-block">
+				<div class="block-line">
+					<img src="#" alt="weather-icon" id="weather-icon" class="block-icon">
+					<div id="weather-name" class="block-value"></div>
+				</div>
+				<div id="weather-desc" class="block-line block-subvalue"></div>
+			</div>
+			<div class="squary square temperature-block">
+				<span id="temperature"></span>
+			</div>
+			<div class="squary square flex-block">
+				<div class="block-line">
+					<div id="maximum" class="block-value"></div>
+					<div class="block-label">Maximum</div>
+				</div>
+				<div class="block-line">
+					<div class="block-label">Minimum</div>
+					<div id="minimum" class="block-value"></div>
+				</div>
+			</div>
+			<div class="squary square flex-block">
+				<div class="block-line">
+					<div id="sunrise" class="block-value"></div>
+					<div class="block-label">Sunrise</div>
+				</div>
+				<div class="block-line">
+					<div class="block-label">Sunset</div>
+					<div id="sunset" class="block-value"></div>
+				</div>
+			</div>
+			<div class="squary square flex-block">
+				<div class="block-line">
+					<div class="block-value"><span id="coverage" ></span> %</div>
+					<div class="block-label">Cloud coverage</div>
+				</div>
+				<div class="block-line">
+					<div class="block-label">Humidity</div>
+					<div class="block-value"><span id="humidity" ></span> %</div>
+				</div>
+			</div>
+			<div class="squary square flex-block">
+				<div class="block-line">
+					<div class="block-value"><span id="wind-speed" ></span> m/s</div>
+					<div class="block-label">Wind speed</div>
+				</div>
+				<div class="block-line">
+					<div class="block-label">Wind direction</div>
+					<div class="block-value"><span id="wind-deg" ></span> °</div>
+				</div>
+			</div>
+		</div>
+		<div id="error-block" style="display: none;">
+			<p>Status : <span id="status"></span></p>
 		</div>
 		<div id="background" class="bg" style="display: none;"><img src="#" alt="background"></div>
 	</body>

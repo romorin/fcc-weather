@@ -3,19 +3,78 @@ body {
 	color: white;
 }
 
+/*
+	Weather blocks
+*/
+
+.flex-block {
+	display: flex;
+	flex-direction : column;
+	justify-content : space-between;
+}
+.block-line {
+	display: flex;
+	justify-content: space-around;
+	align-items: baseline;
+}
+.block-label {
+	font-size: 12px;
+	color: lightgrey;
+}
+.block-value {
+	font-size: 36px;
+}
+.block-subvalue {
+	font-size: 26px;
+}
+.block-icon {
+	align-self : flex-end;
+}
+
+.temperature-block {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+   font-size: 50px;
+	text-align: center;
+}
+
+/*
+	Main contents
+*/
+
+.long {
+	margin: 0 auto;
+	position: relative;
+	/*
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;*/
+}
+.squary {
+	width: 250px;
+	height: 125px;
+
+	margin: 10px;
+}
 .square {
 	border-radius: 5px;
 	padding: 5px;
-	margin-left: auto;
-	margin-right: auto;
-
-	max-width: 800px;
 
 	text-align: center;
    color: white;
    letter-spacing: -1px;
    background: rgb(0, 0, 0); /* fallback color */
    background: rgba(0, 0, 0, 0.5);
+}
+
+#weather-block {
+	margin: 0 auto;
+	position: relative;
+	display: flex;
+	flex-flow: row wrap;
+	justify-content : center;
 }
 
 /* src:http://stackoverflow.com/questions/16548338/full-screen-responsive-background-image */
@@ -33,3 +92,76 @@ body {
 	min-width: 100%;
 	min-height: 100%;
 }
+
+.location-block, .action-block, .degree-block {
+	position: absolute;
+}
+.location-block > * {
+	width: 100%;
+}
+
+@media all and (min-width: 600px) {
+	.long {
+		height: 75px;
+	}
+	.location-block {
+		left: 50%;
+		width: 35%;
+	}
+	.action-block {
+		right: 5%;
+	}
+	.degree-block {
+		left: 5%;
+	}
+	.location-block, .action-block, .degree-block {
+		top: 50%;
+		transform: translateY(-50%);
+	}
+}
+
+@media all and (min-width: 850px) {
+	#weather-block {
+		width: 825px;
+	}
+	.long {
+		width: 790px;
+	}
+}
+
+@media all and (max-width: 850px) and (min-width: 600px) {
+	#weather-block {
+		width: 575px;
+	}
+	.long {
+		width: 520px;
+	}
+}
+
+@media all and (max-width: 600px) {
+	#weather-block {
+		width: 270px;
+	}
+	.long {
+		width: 250px;
+		height: 125px;
+	}
+	.location-block {
+		left: 5%;
+		top: 25%;
+		width: 90%;
+	}
+	.action-block {
+		right: 5%;
+		top: 75%;
+	}
+	.degree-block {
+		left: 5%;
+		top: 75%;
+	}
+
+	.location-block, .action-block, .degree-block {
+		transform: translateY(-25%);
+	}
+}
+
