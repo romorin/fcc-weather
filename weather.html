@@ -5,11 +5,11 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<title>Bob tells you the weather!</title>
 
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<!--link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"-->
+		<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/slate/bootstrap.min.css" rel="stylesheet" integrity="sha384-X9JiR5BtXUXiV6R3XuMyVGefFyy+18PHpBwaMfteb/vd2RrK6Gt4KPenkQyWLxCC" crossorigin="anonymous">
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
-		<link rel="stylesheet" href="fixed-rows.css">
 		<link rel="stylesheet" href="weather.css">
 		<script type="text/javascript" src="weather.js"></script>
 	</head>
@@ -17,17 +17,17 @@
 		<div class="long square">
 			<div class="location-block">
 				<input type="text" name="input-location" id="input-location" placeholder="Location">
-				<div id="label-location" style="display: none;">
+				<div id="label-location" style="display: none;" class="block-subvalue">
 					<span id="city"></span>, <span id="country"></span>
 				</div>
 			</div>
 			<button id="go-button" class="btn btn-default action-block">Go!</button>
 			<div class="btn-group degree-block" data-toggle="buttons">
 				<label class="btn btn-default active">
-					<input type="radio" name="degree" id="celcius" autocomplete="off" checked> Celcius
+					<input type="radio" name="degree" id="celcius" checked> Celcius
 				</label>
 				<label class="btn btn-default">
-					<input type="radio" name="degree" id="farhenheit" autocomplete="off"> Farhenheit
+					<input type="radio" name="degree" id="farhenheit"> Farhenheit
 				</label>
 			</div>
 		</div>
@@ -35,9 +35,9 @@
 			<div class="squary square flex-block">
 				<div class="block-line">
 					<img src="#" alt="weather-icon" id="weather-icon" class="block-icon">
-					<div id="weather-name" class="block-value"></div>
+					<div id="weather-name" class="block-subvalue"></div>
 				</div>
-				<div id="weather-desc" class="block-line block-subvalue"></div>
+				<div id="weather-desc" class="block-line block-text"></div>
 			</div>
 			<div class="squary square temperature-block">
 				<span id="temperature"></span>
@@ -84,8 +84,12 @@
 			</div>
 		</div>
 		<div id="error-block" style="display: none;">
-			<p>Status : <span id="status"></span></p>
+			<div>Status : <span id="status"></span></div>
 		</div>
+		<p class="small square">
+			by <a class="link" href="http://www.freecodecamp.com/romorin">romorin</a> -
+			using <a class="link" href="openweathermap.org">openweathermap</a> api<br/>
+		</p>
 		<div id="background" class="bg" style="display: none;"><img src="#" alt="background"></div>
 	</body>
 </html>

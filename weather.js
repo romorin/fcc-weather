@@ -5,7 +5,7 @@
 /*
 	Set to get from api or test
 */
-var getJsonFct = getTestWeatherJson;
+var getJsonFct = getWeatherJson;
 
 /////////////////////////////////////////////////////////
 // constants
@@ -25,12 +25,15 @@ var PIC_SNOW = "snowstorm.jpg";
 var PIC_MIST = encodeURIComponent("trees in mist.jpg");
 var PIC_RAIN = encodeURIComponent("Gotas en una hoja 3.jpg");
 
+var LABEL_INPUT = "Go!";
+var LABEL_SHOW = "Change!";
+
 /////////////////////////////////////////////////////////
 // data for testing purpose
 
 var TEST_GOOD_JSON = {
 	"coord":{"lon":-0.13,"lat":51.51},
-	"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03n"}],
+	"weather":[{"id":802,"main":"Thunderstorm","description":"heavy shower rain and drizzle","icon":"03n"}],
 	"base":"stations",
 	"main":{"temp":284.56,"pressure":1016,"humidity":82,"temp_min":282.15,"temp_max":286.95},
 	"visibility":10000,
@@ -39,7 +42,7 @@ var TEST_GOOD_JSON = {
 	"dt":1464308108,
 	"sys":{"type":1,"id":5091,"message":0.0441,"country":"GB","sunrise":1464321192,"sunset":1464379381},
 	"id":2643743,
-	"name":"London",
+	"name":"LondonLondonLondon",
 	"cod":200
 };
 var TEST_BAD_JSON = {
@@ -111,7 +114,7 @@ function onDegreeChange() {
 }
 
 /////////////////////////////////////////////////////////
-// Background management
+// Background + Icon management
 
 function codeToBg(code) {
 	switch(code) {
@@ -199,7 +202,7 @@ var WEATHER_ELEMS = {
 };
 
 /*********************************************************
-	Page section
+	Top section
 *********************************************************/
 
 function getNestedProp(json, path, depth) {
@@ -233,6 +236,7 @@ function processWeatherJson(json) {
 	if (json.cod === 200) {
 		jQuery("#error-block").hide();
 		writeWeather(json);
+		setLocationState(false);
 		jQuery("#weather-block").show();
 		jQuery("#background").show();
 	} else {
@@ -243,14 +247,35 @@ function processWeatherJson(json) {
 	}
 }
 
+function setLocationState(toInput) {
+	var inputElem = jQuery("#input-location");
+	var labelElem = jQuery("#label-location");
+	var actionButton = jQuery("#go-button");
+
+	if (toInput === true) {
+		inputElem.show();
+		labelElem.hide();
+		actionButton.html(LABEL_INPUT);
+	} else {
+		inputElem.hide();
+		labelElem.show();
+		actionButton.html(LABEL_SHOW);
+	}
+}
+
 // main function to display the weather
-function updateWeather() {
-	var loc = encodeURIComponent(jQuery("#input-location").val());
-	getJsonFct(processWeatherJson, loc);
+function onActionClick() {
+	var inputElem = jQuery("#input-location");
+	if (inputElem.is(":visible")) {
+		var loc = encodeURIComponent(inputElem.val());
+		getJsonFct(processWeatherJson, loc);
+	} else {
+		setLocationState(true);
+	}
 }
 
 // to be done when the page is ready
 jQuery(document).ready(function() {
-	jQuery("#go-button").on("click", updateWeather);
+	jQuery("#go-button").on("click", onActionClick);
 	jQuery("input[name=degree]:radio").change(onDegreeChange);
 });

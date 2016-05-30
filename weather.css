@@ -27,6 +27,9 @@ body {
 .block-subvalue {
 	font-size: 26px;
 }
+.block-text {
+	font-size: 20px;
+}
 .block-icon {
 	align-self : flex-end;
 }
@@ -45,12 +48,8 @@ body {
 */
 
 .long {
-	margin: 0 auto;
+	margin: 10px auto;
 	position: relative;
-	/*
-	display: flex;
-	justify-content: space-between;
-	flex-wrap: wrap;*/
 }
 .squary {
 	width: 250px;
@@ -58,13 +57,16 @@ body {
 
 	margin: 10px;
 }
+.small {
+	width: 250px;
+	margin: 10px auto;
+}
 .square {
 	border-radius: 5px;
 	padding: 5px;
 
 	text-align: center;
    color: white;
-   letter-spacing: -1px;
    background: rgb(0, 0, 0); /* fallback color */
    background: rgba(0, 0, 0, 0.5);
 }
@@ -75,6 +77,9 @@ body {
 	display: flex;
 	flex-flow: row wrap;
 	justify-content : center;
+}
+#error-block {
+	text-align: center;
 }
 
 /* src:http://stackoverflow.com/questions/16548338/full-screen-responsive-background-image */
@@ -93,8 +98,18 @@ body {
 	min-height: 100%;
 }
 
+/*
+	Contents dependant on resolution + header block
+*/
+
 .location-block, .action-block, .degree-block {
 	position: absolute;
+}
+.action-block {
+	right: 5%;
+}
+.degree-block {
+	left: 5%;
 }
 .location-block > * {
 	width: 100%;
@@ -105,14 +120,7 @@ body {
 		height: 75px;
 	}
 	.location-block {
-		left: 50%;
-		width: 35%;
-	}
-	.action-block {
-		right: 5%;
-	}
-	.degree-block {
-		left: 5%;
+		right: 18%;
 	}
 	.location-block, .action-block, .degree-block {
 		top: 50%;
@@ -152,16 +160,32 @@ body {
 		width: 90%;
 	}
 	.action-block {
-		right: 5%;
 		top: 75%;
 	}
 	.degree-block {
-		left: 5%;
 		top: 75%;
 	}
-
 	.location-block, .action-block, .degree-block {
 		transform: translateY(-25%);
 	}
 }
 
+/*
+	Anchors
+*/
+.link:link {
+	color: powderblue;
+	text-decoration: underline;
+}
+.link:active {
+	color: yellow;
+	text-decoration: underline;
+}
+.link:visited {
+	color: pink;
+	text-decoration: underline;
+}
+.link:hover {
+	color: red;
+	text-decoration: none;
+}
