@@ -5,7 +5,7 @@
 /*
 	Set to get from api or test
 */
-var getJsonFct = getTestWeatherJson;
+var getJsonFct = getWeatherJson;
 
 /////////////////////////////////////////////////////////
 // constants
