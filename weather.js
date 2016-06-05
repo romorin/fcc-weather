@@ -11,8 +11,6 @@ var getJsonFct = getTestWeatherJson;
 // constants
 
 var WEATHER_URL_PRE = "http://api.openweathermap.org/data/2.5/weather?appid=499279b9b6f061d2b82497bdd219688e&q=";
-var WEATHER_ICON_PRE = "http://openweathermap.org/img/w/";
-var WEATHER_ICON_EXT = ".png";
 
 var PRECISION = 2;
 
@@ -73,91 +71,6 @@ function getWeatherJson(parser, loc) {
 *********************************************************/
 
 /////////////////////////////////////////////////////////
-// temp management
-
-function kelvinToFahrenheit(kelvin) {
-	return kelvin * 9/5 - 459.67;
-}
-
-function kelvinToCelsius(kelvin) {
-	return kelvin - 273.15;
-}
-
-function trimPrecision(number) {
-	var exp = Math.pow(10, PRECISION);
-	return Math.round(number * exp) / exp;
-}
-
-var tempValues = {};
-function writeTemp(id, value, degree) {
-	var temp = [value.k, ' K'].join('');
-	if (degree === 'celcius') {
-		temp = [value.c, ' °C'].join('');
-	} else if (degree === 'farhenheit') {
-		temp = [value.f, ' °F'].join('');
-	}
-	jQuery(id).html(temp);
-}
-
-function onDegreeChange() {
-	var degree = jQuery("input:radio[name=degree]:checked").attr('id');
-	for (var id in tempValues) {
-		writeTemp(id, tempValues[id], degree);
-	}
-}
-
-/////////////////////////////////////////////////////////
-// Background + Icon management
-
-function codeToBg(code) {
-	switch(code) {
-		case '01d':
-		case '02d':
-			return [images.CLEAR_SUN.src, "clear day"];
-		case '01n':
-		case '02n':
-			return [images.CLEAR_MOON.src, "clear night"];
-		case '03d':
-		case '04d':
-			return [images.CLOUD_SUN.src, "cloudy day"];
-		case '03n':
-		case '04n':
-			return [images.CLOUD_MOON.src, "cloudy night"];
-		case '09d':
-		case '10d':
-		case '09n':
-		case '10n':
-			return [images.RAIN.src, "rain"];
-		case '11d':
-		case '11n':
-			return [images.THUNDER.src, "thunderstorm"];
-		case '13d':
-		case '13n':
-			return [images.SNOW.src, "snowstorm"];
-		case '50d':
-		case '50n':
-			return [images.MIST.src, "mist"];
-	}
-}
-
-var ID_ICON = "#weather-icon";
-var ID_BACKGROUND = "#background";
-
-function getIconWriter() {
-	return function (contents) {
-		// update icon
-		jQuery(ID_ICON).prop("src", [WEATHER_ICON_PRE, contents, WEATHER_ICON_EXT].join(""));
-
-		// update background
-		var bgData = codeToBg(contents);
-		var bg = jQuery(ID_BACKGROUND);
-		var img = bg.children('img');
-		img.attr('src', bgData[0]);
-		img.attr('alt', bgData[1]);
-	};
-}
-
-/////////////////////////////////////////////////////////
 // base elem
 
 function WeatherElem() {
@@ -169,84 +82,177 @@ WeatherElem.prototype.writeHtml = function () {
 /////////////////////////////////////////////////////////
 // html elem
 
-function HtmlWeatherElem(id, path) {
-	WeatherElem.call(this);
+var HtmlWeatherElem = (function () {
+	function HtmlWeatherElem(id, path) {
+		WeatherElem.call(this);
 
-	this.id = id;
-	this.path = path;
-}
+		this._id = id;
+		this._path = path;
+	}
 
-HtmlWeatherElem.prototype = Object.create(WeatherElem.prototype);
-HtmlWeatherElem.prototype.constructor = HtmlWeatherElem;
+	HtmlWeatherElem.prototype = Object.create(WeatherElem.prototype);
+	HtmlWeatherElem.prototype.constructor = HtmlWeatherElem;
 
-HtmlWeatherElem.prototype.writeHtml = function (json) {
-	jQuery(this.id).html(getNestedProp(json, this.path));
-};
+	HtmlWeatherElem.prototype.writeHtml = function (json) {
+		jQuery(this._id).html(getNestedProp(json, this._path));
+	};
+
+	return HtmlWeatherElem;
+})();
 
 /////////////////////////////////////////////////////////
 // date elem
 
-function DateWeatherElem(id, path) {
-	WeatherElem.call(this);
+var DateWeatherElem = (function () {
+	function DateWeatherElem(id, path) {
+		WeatherElem.call(this);
 
-	this.id = id;
-	this.path = path;
-}
+		this._id = id;
+		this._path = path;
+	}
 
-DateWeatherElem.prototype = Object.create(WeatherElem.prototype);
-DateWeatherElem.prototype.constructor = DateWeatherElem;
+	DateWeatherElem.prototype = Object.create(WeatherElem.prototype);
+	DateWeatherElem.prototype.constructor = DateWeatherElem;
 
-DateWeatherElem.prototype.writeHtml = function (json) {
-	var date = new Date(getNestedProp(json, this.path) * 1000);
-	jQuery(this.id).html(date.toTimeString().split(' ', 1));
-};
+	DateWeatherElem.prototype.writeHtml = function (json) {
+		var date = new Date(getNestedProp(json, this._path) * 1000);
+		jQuery(this._id).html(date.toTimeString().split(' ', 1));
+	};
+
+	return DateWeatherElem;
+})();
 
 /////////////////////////////////////////////////////////
 // temp elem
 
-function TempWeatherElem(id, path) {
-	WeatherElem.call(this);
+var TempWeatherElem = (function () {
+	function trimPrecision(number) {
+		var exp = Math.pow(10, PRECISION);
+		return Math.round(number * exp) / exp;
+	}
 
-	this.id = id;
-	this.path = path;
-}
+	function getFahrenheit(kelvin) {
+		return trimPrecision(kelvin * 9/5 - 459.67);
+	}
 
-TempWeatherElem.prototype = Object.create(WeatherElem.prototype);
-TempWeatherElem.prototype.constructor = TempWeatherElem;
+	function getCelsius(kelvin) {
+		return trimPrecision(kelvin - 273.15);
+	}
 
-TempWeatherElem.prototype.writeHtml = function (json) {
-	var contents = getNestedProp(json, this.path);
-	var value = {'k':contents, 'c':trimPrecision(kelvinToCelsius(contents)), 'f':trimPrecision(kelvinToFahrenheit(contents))};
-	tempValues[this.id] = value;
+	function writeTemp(id, value, degree) {
+		var temp = [value.k, ' K'].join('');
+		if (degree === 'celcius') {
+			temp = [value.c, ' °C'].join('');
+		} else if (degree === 'farhenheit') {
+			temp = [value.f, ' °F'].join('');
+		}
+		jQuery(id).html(temp);
+	}
 
-	var degree = jQuery("input:radio[name=degree]:checked").attr('id');
-	writeTemp(this.id, value, degree);
-};
+	function TempWeatherElem(id, path) {
+		WeatherElem.call(this);
+
+		this._id = id;
+		this._path = path;
+	}
+
+	TempWeatherElem.prototype = Object.create(WeatherElem.prototype);
+	TempWeatherElem.prototype.constructor = TempWeatherElem;
+
+	TempWeatherElem.prototype.writeHtml = function (json) {
+		var contents = getNestedProp(json, this._path);
+		var value = {'k':contents, 'c':getCelsius(contents), 'f':getFahrenheit(contents)};
+		//tempValues[this._id] = value;
+
+		var degree = jQuery("input:radio[name=degree]:checked").attr('id');
+		writeTemp(this._id, value, degree);
+	};
+
+	return TempWeatherElem;
+})();
 
 /////////////////////////////////////////////////////////
-// icon elem
+// img elem
 
-function IconWeatherElem(path) {
-	WeatherElem.call(this);
+var ImgWeatherElem = (function() {
+	function ImgWeatherElem(id, path, pre, post) {
+		WeatherElem.call(this);
 
-	this.path = path;
-}
+		this._id = id;
+		this._path = path;
+		this._pre = pre;
+		this._post = post;
+	}
 
-IconWeatherElem.prototype = Object.create(WeatherElem.prototype);
-IconWeatherElem.prototype.constructor = IconWeatherElem;
+	ImgWeatherElem.prototype = Object.create(WeatherElem.prototype);
+	ImgWeatherElem.prototype.constructor = ImgWeatherElem;
 
-IconWeatherElem.prototype.writeHtml = function (json) {
-	// update icon
-	var contents = getNestedProp(json, this.path);
-	jQuery(ID_ICON).prop("src", [WEATHER_ICON_PRE, contents, WEATHER_ICON_EXT].join(""));
+	ImgWeatherElem.prototype.writeHtml = function (json) {
+		var contents = getNestedProp(json, this._path);
+		jQuery(this._id).prop("src", [this._pre, contents, this._post].join(""));
+	};
 
-	// update background
-	var bgData = codeToBg(contents);
-	var bg = jQuery(ID_BACKGROUND);
-	var img = bg.children('img');
-	img.attr('src', bgData[0]);
-	img.attr('alt', bgData[1]);
-};
+	return ImgWeatherElem;
+})();
+
+/////////////////////////////////////////////////////////
+// background elem
+
+var BackgroundWeatherElem = (function() {
+	function codeToBg(code) {
+		switch(code) {
+			case '01d':
+			case '02d':
+				return [images.CLEAR_SUN.src, "clear day"];
+			case '01n':
+			case '02n':
+				return [images.CLEAR_MOON.src, "clear night"];
+			case '03d':
+			case '04d':
+				return [images.CLOUD_SUN.src, "cloudy day"];
+			case '03n':
+			case '04n':
+				return [images.CLOUD_MOON.src, "cloudy night"];
+			case '09d':
+			case '10d':
+			case '09n':
+			case '10n':
+				return [images.RAIN.src, "rain"];
+			case '11d':
+			case '11n':
+				return [images.THUNDER.src, "thunderstorm"];
+			case '13d':
+			case '13n':
+				return [images.SNOW.src, "snowstorm"];
+			case '50d':
+			case '50n':
+				return [images.MIST.src, "mist"];
+		}
+	}
+
+	function BackgroundWeatherElem(id, path) {
+		WeatherElem.call(this);
+
+		this._id = id;
+		this._path = path;
+	}
+
+	BackgroundWeatherElem.prototype = Object.create(WeatherElem.prototype);
+	BackgroundWeatherElem.prototype.constructor = BackgroundWeatherElem;
+
+	BackgroundWeatherElem.prototype.writeHtml = function (json) {
+		var icon = getNestedProp(json, this._path);
+
+		// update background
+		var bgArray = codeToBg(icon);
+		var bg = jQuery(this._id);
+		var img = bg.children('img');
+		img.attr('src', bgArray[0]);
+		img.attr('alt', bgArray[1]);
+	};
+
+	return BackgroundWeatherElem;
+})();
 
 /////////////////////////////////////////////////////////
 // weather elems
@@ -267,7 +273,9 @@ function WeatherElems() {
 	this.elems.push(new DateWeatherElem('#sunset', ["sys", "sunset"]));
 	this.elems.push(new HtmlWeatherElem('#weather-name', ["weather", 0, "main"]));
 	this.elems.push(new HtmlWeatherElem('#weather-desc', ["weather", 0, "description"]));
-	this.elems.push(new IconWeatherElem(["weather", 0, "icon"]));
+	this.elems.push(new ImgWeatherElem("#weather-icon", ["weather", 0, "icon"],
+													"http://openweathermap.org/img/w/", ".png"));
+	this.elems.push(new BackgroundWeatherElem("#background", ["weather", 0, "icon"]));
 }
 
 WeatherElems.prototype.writeHtml = function (json) {
@@ -275,6 +283,10 @@ WeatherElems.prototype.writeHtml = function (json) {
 	for (var i = 0; i < length; i++) {
 		this.elems[i].writeHtml(json);
 	}
+};
+
+WeatherElems.prototype.writeTempsHtml = function (json) {
+	//todo
 };
 
 var WEATHER_ELEMS = new WeatherElems();
@@ -345,6 +357,10 @@ function onActionClick() {
 	} else {
 		setLocationState(true);
 	}
+}
+
+function onDegreeChange() {
+	WEATHER_ELEMS.writeTempsHtml();
 }
 
 function preload() {
