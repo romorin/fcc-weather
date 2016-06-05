@@ -5,7 +5,7 @@
 /*
 	Set to get from api or test
 */
-var getJsonFct = getTestWeatherJson;
+var getJsonFct = getWeatherJson;
 
 /////////////////////////////////////////////////////////
 // constants
@@ -74,18 +74,14 @@ function getWeatherJson(parser, loc) {
 	Weather dom section
 *********************************************************/
 
-
+// safely get a nested json property and return "" on errors
 function getNestedProp(json, path) {
-	return getNestedPropImpl(json, path, 0);
+	return _getNestedPropImpl(json, path, 0);
 }
 
 // path can be array index or object key, since arrays are objects
-function getNestedPropImpl(json, path, depth) {
+function _getNestedPropImpl(json, path, depth) {
 	// end check
-	if (path === undefined) {
-		return "";
-	}
-
 	if(depth >= path.length) {
 		return json;
 	}
@@ -94,7 +90,7 @@ function getNestedPropImpl(json, path, depth) {
 		return "";
 	}
 	// dig deeper
-	return getNestedPropImpl(json[path[depth]], path, depth+1);
+	return _getNestedPropImpl(json[path[depth]], path, depth+1);
 }
 
 /////////////////////////////////////////////////////////
@@ -103,9 +99,11 @@ function getNestedPropImpl(json, path, depth) {
 function WeatherElem() {
 }
 
+// overidden by the child when he must do something  on json update
 WeatherElem.prototype.onJsonUpdate = function () {
 };
 
+// overidden by the child when he must do something  on degree change
 WeatherElem.prototype.onDegreeChange = function () {
 };
 
@@ -113,6 +111,7 @@ WeatherElem.prototype.onDegreeChange = function () {
 // html elem
 
 var HtmlWeatherElem = (function () {
+	// ctr
 	function HtmlWeatherElem(id, path) {
 		WeatherElem.call(this);
 
@@ -123,6 +122,7 @@ var HtmlWeatherElem = (function () {
 	HtmlWeatherElem.prototype = Object.create(WeatherElem.prototype);
 	HtmlWeatherElem.prototype.constructor = HtmlWeatherElem;
 
+	// write the elem into the html
 	HtmlWeatherElem.prototype.onJsonUpdate = function (json) {
 		jQuery(this._id).html(getNestedProp(json, this._path));
 	};
@@ -134,6 +134,7 @@ var HtmlWeatherElem = (function () {
 // date elem
 
 var DateWeatherElem = (function () {
+	// ctr
 	function DateWeatherElem(id, path) {
 		WeatherElem.call(this);
 
@@ -144,6 +145,7 @@ var DateWeatherElem = (function () {
 	DateWeatherElem.prototype = Object.create(WeatherElem.prototype);
 	DateWeatherElem.prototype.constructor = DateWeatherElem;
 
+	// write a prettied up version of the date into the html
 	DateWeatherElem.prototype.onJsonUpdate = function (json) {
 		var date = new Date(getNestedProp(json, this._path) * 1000);
 		jQuery(this._id).html(date.toTimeString().split(' ', 1));
@@ -156,19 +158,24 @@ var DateWeatherElem = (function () {
 // temp elem
 
 var TempWeatherElem = (function () {
+
+	// leave only # digits after the dot
 	function trimPrecision(number) {
 		var exp = Math.pow(10, PRECISION);
 		return Math.round(number * exp) / exp;
 	}
 
+	// get F with the standard precision from kelvin
 	function getFahrenheit(kelvin) {
 		return trimPrecision(kelvin * 9/5 - 459.67);
 	}
 
+	// get C with the standard precision from kelvin
 	function getCelsius(kelvin) {
 		return trimPrecision(kelvin - 273.15);
 	}
 
+	// write a prettied up version of the temperature
 	function writeTemp(id, value, degree) {
 		var temp = [value.k, ' K'].join('');
 		if (degree === 'celcius') {
@@ -179,6 +186,7 @@ var TempWeatherElem = (function () {
 		jQuery(id).html(temp);
 	}
 
+	// ctr
 	function TempWeatherElem(id, path) {
 		WeatherElem.call(this);
 
@@ -189,11 +197,11 @@ var TempWeatherElem = (function () {
 	TempWeatherElem.prototype = Object.create(WeatherElem.prototype);
 	TempWeatherElem.prototype.constructor = TempWeatherElem;
 
+	// handle degree change and json update the same by writing the temp into the id element html
 	TempWeatherElem.prototype.onDegreeChange =
 	TempWeatherElem.prototype.onJsonUpdate = function (json) {
 		var contents = getNestedProp(json, this._path);
 		var value = {'k':contents, 'c':getCelsius(contents), 'f':getFahrenheit(contents)};
-		//tempValues[this._id] = value;
 
 		var degree = jQuery("input:radio[name=degree]:checked").attr('id');
 		writeTemp(this._id, value, degree);
@@ -206,6 +214,8 @@ var TempWeatherElem = (function () {
 // img elem
 
 var ImgWeatherElem = (function() {
+
+	// ctr
 	function ImgWeatherElem(id, path, pre, post) {
 		WeatherElem.call(this);
 
@@ -218,6 +228,7 @@ var ImgWeatherElem = (function() {
 	ImgWeatherElem.prototype = Object.create(WeatherElem.prototype);
 	ImgWeatherElem.prototype.constructor = ImgWeatherElem;
 
+	// handle json update by updating the src
 	ImgWeatherElem.prototype.onJsonUpdate = function (json) {
 		var contents = getNestedProp(json, this._path);
 		jQuery(this._id).prop("src", [this._pre, contents, this._post].join(""));
@@ -230,6 +241,8 @@ var ImgWeatherElem = (function() {
 // background elem
 
 var BackgroundWeatherElem = (function() {
+
+	// choose the image to display from the icon code
 	function codeToBg(code) {
 		switch(code) {
 			case '01d':
@@ -261,6 +274,7 @@ var BackgroundWeatherElem = (function() {
 		}
 	}
 
+	// ctr
 	function BackgroundWeatherElem(id, path) {
 		WeatherElem.call(this);
 
@@ -271,13 +285,13 @@ var BackgroundWeatherElem = (function() {
 	BackgroundWeatherElem.prototype = Object.create(WeatherElem.prototype);
 	BackgroundWeatherElem.prototype.constructor = BackgroundWeatherElem;
 
+	// handle json update by changing the background
 	BackgroundWeatherElem.prototype.onJsonUpdate = function (json) {
 		var icon = getNestedProp(json, this._path);
 
-		// update background
 		var bgArray = codeToBg(icon);
-		var bg = jQuery(this._id);
-		var img = bg.children('img');
+		var img = jQuery(this._id).children('img');
+
 		img.attr('src', bgArray[0]);
 		img.attr('alt', bgArray[1]);
 	};
@@ -289,7 +303,9 @@ var BackgroundWeatherElem = (function() {
 // weather json handler
 
 var WeatherJsonHandler = (function() {
-	function initElems(self) {	
+
+	// init the displayed elements in the page into the elems array
+	function initElems(self) {
 		self._elems.push(new TempWeatherElem('#temperature', ["main", "temp"]));
 		self._elems.push(new HtmlWeatherElem('#humidity', ["main", "humidity"]));
 		self._elems.push(new TempWeatherElem('#minimum', ["main", "temp_min"]));
@@ -307,23 +323,26 @@ var WeatherJsonHandler = (function() {
 														"http://openweathermap.org/img/w/", ".png"));
 		self._elems.push(new BackgroundWeatherElem("#background", ["weather", 0, "icon"]));
 	}
-	
+
+	// ctr
 	function WeatherJsonHandler() {
 		this._elems = [];
 		this._json = {};
-		
+
 		initElems(this);
 	}
 
+	// relay json updates to the elems
 	WeatherJsonHandler.prototype.onJsonUpdate = function (json) {
 		this._json = json;
-		
+
 		var length = this._elems.length;
 		for (var i = 0; i < length; i++) {
 			this._elems[i].onJsonUpdate(this._json);
 		}
 	};
-	
+
+	// relay degree change to the elems
 	WeatherJsonHandler.prototype.onDegreeChange = function () {
 		var length = this._elems.length;
 		for (var i = 0; i < length; i++) {
@@ -337,14 +356,16 @@ var WeatherJsonHandler = (function() {
 	Page handler
 *********************************************************/
 
-var WeatherPageHandler = (function () {	
+var WeatherPageHandler = (function () {
+
+	// handle the json returned by the api
 	function processWeatherJson(self, json) {
 		if (json.cod === 200) {
 			jQuery("#error-block").hide();
 			self._jsonHandler.onJsonUpdate(json);
 			jQuery("#weather-block").show();
 			jQuery("#background").show();
-			
+
 			jQuery("#input-location").hide();
 			jQuery("#label-location").show();
 			jQuery("#go-button").html(LABEL_SHOW);
@@ -355,18 +376,20 @@ var WeatherPageHandler = (function () {
 			jQuery("#error-block").show();
 		}
 	}
-	
+
+	// wrap this and give the method pointer to handle the json
 	function getParserPtr(self) {
 		return function (json) {
 			processWeatherJson(self, json);
 		};
 	}
-	
+
+	// ctr
 	function WeatherPageHandler() {
 		this._jsonHandler = new WeatherJsonHandler();
 	}
 
-	// main function to display the weather
+	// handle action event
 	WeatherPageHandler.prototype.onActionClick = function() {
 		var inputElem = jQuery("#input-location");
 		if (inputElem.is(":visible")) {
@@ -378,7 +401,8 @@ var WeatherPageHandler = (function () {
 			jQuery("#go-button").html(LABEL_INPUT);
 		}
 	};
-	
+
+	// handle degree change
 	WeatherPageHandler.prototype.onDegreeChange = function() {
 		this._jsonHandler.onDegreeChange();
 	};
@@ -390,10 +414,21 @@ var PAGE_HANDLER = new WeatherPageHandler();
 
 // to be done when the page is ready
 jQuery(document).ready(function() {
+	// handle go click
 	jQuery("#go-button").on("click", PAGE_HANDLER.onActionClick.bind(PAGE_HANDLER));
+
+	// handle input enter press
+	$('#input-location').keydown(function(event) {
+	  if(event.keyCode == '13') {
+	    PAGE_HANDLER.onActionClick();
+	  }
+	});
+
+	// handle degree change
 	jQuery("input[name=degree]:radio").change(PAGE_HANDLER.onDegreeChange.bind(PAGE_HANDLER));
 });
 
+// preload images while the user select its location
 function preload() {
 	for (var url in PIC_URL) {
 		images[url] = new Image();
