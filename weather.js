@@ -5,7 +5,7 @@
 /*
 	Set to get from api or test
 */
-var getJsonFct = getWeatherJson;
+var getJsonFct = getTestWeatherJson;
 
 /////////////////////////////////////////////////////////
 // constants
@@ -89,16 +89,6 @@ function trimPrecision(number) {
 }
 
 var tempValues = {};
-function getTempWriter(id) {
-	return function (contents) {
-		var value = {'k':contents, 'c':trimPrecision(kelvinToCelsius(contents)), 'f':trimPrecision(kelvinToFahrenheit(contents))};
-		tempValues[id] = value;
-
-		var degree = jQuery("input:radio[name=degree]:checked").attr('id');
-		writeTemp(id, value, degree);
-	};
-}
-
 function writeTemp(id, value, degree) {
 	var temp = [value.k, ' K'].join('');
 	if (degree === 'celcius') {
@@ -168,76 +158,157 @@ function getIconWriter() {
 }
 
 /////////////////////////////////////////////////////////
-// time management
+// base elem
 
-function getDateWriter(id) {
-	return function (contents) {
-		var date = new Date(contents * 1000);
-		jQuery(id).html(date.toTimeString().split(' ', 1));
-	};
+function WeatherElem() {
 }
+
+WeatherElem.prototype.writeHtml = function () {
+};
 
 /////////////////////////////////////////////////////////
-// main
+// html elem
 
-function getHtmlWriter(id) {
-	return function (contents) {
-		jQuery(id).html(contents);
-	};
+function HtmlWeatherElem(id, path) {
+	WeatherElem.call(this);
+
+	this.id = id;
+	this.path = path;
 }
 
-var WEATHER_ELEMS = {
-	'temperature': { 'path' : ["main", "temp"], 					'writer' : getTempWriter('#temperature')},
-	'humidity' : 	{ 'path' : ["main", "humidity"], 			'writer' : getHtmlWriter('#humidity')},
-	'minimum' : 	{ 'path' : ["main", "temp_min"],				'writer' : getTempWriter('#minimum')},
-	'maximum' : 	{ 'path' : ["main", "temp_max"],				'writer' : getTempWriter('#maximum')},
-	'windSpeed' : 	{ 'path' : ["wind", "speed"],					'writer' : getHtmlWriter('#wind-speed')},
-	'windDeg' : 	{ 'path' : ["wind", "deg"],					'writer' : getHtmlWriter('#wind-deg')},
-	'coverage' : 	{ 'path' : ["clouds", "all"],					'writer' : getHtmlWriter('#coverage')},
-	'city' : 		{ 'path' : ["name"],								'writer' : getHtmlWriter('#city')},
-	'country' : 	{ 'path' : ["sys", "country"],				'writer' : getHtmlWriter('#country')},
-	'sunrise' : 	{ 'path' : ["sys", "sunrise"],				'writer' : getDateWriter('#sunrise')},
-	'sunset' : 		{ 'path' : ["sys", "sunset"],					'writer' : getDateWriter('#sunset')},
-	'weatherName' :{ 'path' : ["weather", 0, "main"],			'writer' : getHtmlWriter('#weather-name')},
-	'weatherDesc' :{ 'path' : ["weather", 0, "description"],	'writer' : getHtmlWriter('#weather-desc')},
-	'weatherIcon' :{ 'path' : ["weather", 0, "icon"],			'writer' : getIconWriter()}
+HtmlWeatherElem.prototype = Object.create(WeatherElem.prototype);
+HtmlWeatherElem.prototype.constructor = HtmlWeatherElem;
+
+HtmlWeatherElem.prototype.writeHtml = function (json) {
+	jQuery(this.id).html(getNestedProp(json, this.path));
 };
+
+/////////////////////////////////////////////////////////
+// date elem
+
+function DateWeatherElem(id, path) {
+	WeatherElem.call(this);
+
+	this.id = id;
+	this.path = path;
+}
+
+DateWeatherElem.prototype = Object.create(WeatherElem.prototype);
+DateWeatherElem.prototype.constructor = DateWeatherElem;
+
+DateWeatherElem.prototype.writeHtml = function (json) {
+	var date = new Date(getNestedProp(json, this.path) * 1000);
+	jQuery(this.id).html(date.toTimeString().split(' ', 1));
+};
+
+/////////////////////////////////////////////////////////
+// temp elem
+
+function TempWeatherElem(id, path) {
+	WeatherElem.call(this);
+
+	this.id = id;
+	this.path = path;
+}
+
+TempWeatherElem.prototype = Object.create(WeatherElem.prototype);
+TempWeatherElem.prototype.constructor = TempWeatherElem;
+
+TempWeatherElem.prototype.writeHtml = function (json) {
+	var contents = getNestedProp(json, this.path);
+	var value = {'k':contents, 'c':trimPrecision(kelvinToCelsius(contents)), 'f':trimPrecision(kelvinToFahrenheit(contents))};
+	tempValues[this.id] = value;
+
+	var degree = jQuery("input:radio[name=degree]:checked").attr('id');
+	writeTemp(this.id, value, degree);
+};
+
+/////////////////////////////////////////////////////////
+// icon elem
+
+function IconWeatherElem(path) {
+	WeatherElem.call(this);
+
+	this.path = path;
+}
+
+IconWeatherElem.prototype = Object.create(WeatherElem.prototype);
+IconWeatherElem.prototype.constructor = IconWeatherElem;
+
+IconWeatherElem.prototype.writeHtml = function (json) {
+	// update icon
+	var contents = getNestedProp(json, this.path);
+	jQuery(ID_ICON).prop("src", [WEATHER_ICON_PRE, contents, WEATHER_ICON_EXT].join(""));
+
+	// update background
+	var bgData = codeToBg(contents);
+	var bg = jQuery(ID_BACKGROUND);
+	var img = bg.children('img');
+	img.attr('src', bgData[0]);
+	img.attr('alt', bgData[1]);
+};
+
+/////////////////////////////////////////////////////////
+// weather elems
+
+function WeatherElems() {
+	this.elems = [];
+
+	this.elems.push(new TempWeatherElem('#temperature', ["main", "temp"]));
+	this.elems.push(new HtmlWeatherElem('#humidity', ["main", "humidity"]));
+	this.elems.push(new TempWeatherElem('#minimum', ["main", "temp_min"]));
+	this.elems.push(new TempWeatherElem('#maximum', ["main", "temp_max"]));
+	this.elems.push(new HtmlWeatherElem('#wind-speed', ["wind", "speed"]));
+	this.elems.push(new HtmlWeatherElem('#wind-deg', ["wind", "deg"]));
+	this.elems.push(new HtmlWeatherElem('#coverage', ["clouds", "all"]));
+	this.elems.push(new HtmlWeatherElem('#city', ["name"]));
+	this.elems.push(new HtmlWeatherElem('#country', ["sys", "country"]));
+	this.elems.push(new DateWeatherElem('#sunrise', ["sys", "sunrise"]));
+	this.elems.push(new DateWeatherElem('#sunset', ["sys", "sunset"]));
+	this.elems.push(new HtmlWeatherElem('#weather-name', ["weather", 0, "main"]));
+	this.elems.push(new HtmlWeatherElem('#weather-desc', ["weather", 0, "description"]));
+	this.elems.push(new IconWeatherElem(["weather", 0, "icon"]));
+}
+
+WeatherElems.prototype.writeHtml = function (json) {
+	var length = this.elems.length;
+	for (var i = 0; i < length; i++) {
+		this.elems[i].writeHtml(json);
+	}
+};
+
+var WEATHER_ELEMS = new WeatherElems();
 
 /*********************************************************
 	Top section
 *********************************************************/
 
-function getNestedProp(json, path, depth) {
-	// end check
-	if(depth >= path.length) {
-		return json;
-
-	// error check
-	} else if (Number.isInteger(path[depth])) {
-		if (!Array.isArray(json) || json.length <= path[depth]) {
-			return "";
-		}
-	} else {
-		if (!json.hasOwnProperty(path[depth])) {
-			return "";
-		}
-	}
-
-	// dig deeper
-	return getNestedProp(json[path[depth]], path, depth+1);
+function getNestedProp(json, path) {
+	return getNestedPropImpl(json, path, 0);
 }
 
-function writeWeather(json) {
-	for (var elem in WEATHER_ELEMS) {
-		var value = getNestedProp(json, WEATHER_ELEMS[elem].path, 0);
-		WEATHER_ELEMS[elem].writer(value);
+// path can be array index or object key, since arrays are objects
+function getNestedPropImpl(json, path, depth) {
+	// end check
+	if (path === undefined) {
+		return "";
 	}
+
+	if(depth >= path.length) {
+		return json;
+	}
+	// error check
+	if (!json.hasOwnProperty(path[depth])) {
+		return "";
+	}
+	// dig deeper
+	return getNestedPropImpl(json[path[depth]], path, depth+1);
 }
 
 function processWeatherJson(json) {
 	if (json.cod === 200) {
 		jQuery("#error-block").hide();
-		writeWeather(json);
+		WEATHER_ELEMS.writeHtml(json);
 		setLocationState(false);
 		jQuery("#weather-block").show();
 		jQuery("#background").show();
