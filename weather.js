@@ -418,7 +418,7 @@ jQuery(document).ready(function() {
 	jQuery("#go-button").on("click", PAGE_HANDLER.onActionClick.bind(PAGE_HANDLER));
 
 	// handle input enter press
-	$('#input-location').keydown(function(event) {
+	jQuery('#input-location').keydown(function(event) {
 	  if(event.keyCode == '13') {
 	    PAGE_HANDLER.onActionClick();
 	  }
