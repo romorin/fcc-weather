@@ -15,14 +15,14 @@ var WEATHER_URL_PRE = "http://api.openweathermap.org/data/2.5/weather?appid=4992
 var PRECISION = 2;
 
 var PIC_URL = {
-	'CLEAR_MOON' : "https://dl.dropboxusercontent.com/s/0vf7fivvuuwrjck/clear-moon.jpg",
-	'CLOUD_MOON' : "https://dl.dropboxusercontent.com/s/e7r0gp9hx45qojh/cloud-moon.jpg",
-	'CLEAR_SUN' : "https://dl.dropboxusercontent.com/s/9wfsoa3j2qq3o70/sunset.jpg",
-	'CLOUD_SUN' : "https://dl.dropboxusercontent.com/s/d36pxotvc8ehywj/cloudy.jpg",
-	'THUNDER' : "https://dl.dropboxusercontent.com/s/zpln1kbgohnc0dk/lightning.jpg",
-	'SNOW' : "https://dl.dropboxusercontent.com/s/8knvqpic7q96aca/snowstorm.jpg",
-	'MIST' : "https://dl.dropboxusercontent.com/s/iljz3aw25vdh806/trees%20in%20mist.jpg",
-	'RAIN' : "https://dl.dropboxusercontent.com/s/klqji3ow64jlyzc/Gotas%20en%20una%20hoja%203.jpg"
+	'CLEAR_MOON' : "http://romorin.com/weather/img/clear-moon.jpg",
+	'CLOUD_MOON' : "http://romorin.com/weather/img/cloud-moon.jpg",
+	'CLEAR_SUN' : "http://romorin.com/weather/img/sunset.jpg",
+	'CLOUD_SUN' : "http://romorin.com/weather/img/cloudy.jpg",
+	'THUNDER' : "http://romorin.com/weather/img/lightning.jpg",
+	'SNOW' : "http://romorin.com/weather/img/snowstorm.jpg",
+	'MIST' : "http://romorin.com/weather/img/trees%20in%20mist.jpg",
+	'RAIN' : "http://romorin.com/weather/img/Gotas%20en%20una%20hoja%203.jpg"
 };
 var images = {};
 
