@@ -15,14 +15,14 @@ var WEATHER_URL_PRE = "http://api.openweathermap.org/data/2.5/weather?appid=4992
 var PRECISION = 2;
 
 var PIC_URL = {
-	'CLEAR_MOON' : "http://romorin.com/weather/img/clear-moon.jpg",
-	'CLOUD_MOON' : "http://romorin.com/weather/img/cloud-moon.jpg",
-	'CLEAR_SUN' : "http://romorin.com/weather/img/sunset.jpg",
-	'CLOUD_SUN' : "http://romorin.com/weather/img/cloudy.jpg",
-	'THUNDER' : "http://romorin.com/weather/img/lightning.jpg",
-	'SNOW' : "http://romorin.com/weather/img/snowstorm.jpg",
-	'MIST' : "http://romorin.com/weather/img/trees%20in%20mist.jpg",
-	'RAIN' : "http://romorin.com/weather/img/Gotas%20en%20una%20hoja%203.jpg"
+	'CLEAR_MOON' : "http://romorin.com/fcc-weather/img/clear-moon.jpg",
+	'CLOUD_MOON' : "http://romorin.com/fcc-weather/img/cloud-moon.jpg",
+	'CLEAR_SUN' : "http://romorin.com/fcc-weather/img/sunset.jpg",
+	'CLOUD_SUN' : "http://romorin.com/fcc-weather/img/cloudy.jpg",
+	'THUNDER' : "http://romorin.com/fcc-weather/img/lightning.jpg",
+	'SNOW' : "http://romorin.com/fcc-weather/img/snowstorm.jpg",
+	'MIST' : "http://romorin.com/fcc-weather/img/trees%20in%20mist.jpg",
+	'RAIN' : "http://romorin.com/fcc-weather/img/Gotas%20en%20una%20hoja%203.jpg"
 };
 var images = {};
 
